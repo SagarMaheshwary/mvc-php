@@ -45,6 +45,7 @@ class Cookie
     /**
      * Unset/Remove a value.
      * 
+     * @param string $key
      * @return void
      */
     public static function unset($key)

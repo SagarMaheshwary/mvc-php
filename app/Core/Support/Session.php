@@ -45,6 +45,7 @@ class Session
     /**
      * Unset/Remove a value.
      * 
+     * @param string $key
      * @return void
      */
     public static function unset($key)
@@ -69,7 +70,6 @@ class Session
      * 
      * @param string $key
      * @param string $value
-     * 
      * @return mixed
      */
     public static function flash($key,$value)
