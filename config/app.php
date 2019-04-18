@@ -42,6 +42,7 @@ return [
      */
     'session' => [
         'name' => 'my_session',
+        'csrf_token' => 'my_csrf_token',
     ]
 
 ];
