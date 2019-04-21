@@ -16,8 +16,7 @@ class CSRF
      */
     public static function generate()
     {
-        echo Config::get('session.csrf_token');
-        $key = '';
+        $key = Config::get('session.csrf_token');
         $token = Hash::unique();
         Session::set($key,$token);
         return $token;
