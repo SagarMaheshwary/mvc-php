@@ -8,6 +8,6 @@
  * Dynamic route: $router->method('uri/with/{dynamicvalue}','Controller@method');
  */
 
-$router->get('/','HomeController@index');
-$router->get('/user/{id}/name/{name}','HomeController@show');
-$router->post('/hello','HomeController@hello');
+$router->get('/','PagesController@index');
+$router->get('/contact','PagesController@contact');
+$router->get('/about','PagesController@about');
