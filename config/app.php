@@ -20,7 +20,7 @@ return [
      */
     'database' => [
         'host'     => '127.0.0.1',
-        'name'     => 'mvcblog',
+        'name'     => 'myapp',
         'username' => 'root',
         'password' => '',
         'port'     => '3306',

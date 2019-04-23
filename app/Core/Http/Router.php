@@ -104,7 +104,7 @@ class Router
      */
     public static function load($routes)
     {
-        $router = new self;
+        $router = new static;
         require $routes;
         return $router;
     }
@@ -161,7 +161,7 @@ class Router
     }
 
     /**
-     * Match the current uri with registered the routes.
+     * Match the current uri with registered routes.
      * 
      * @return void
      */
@@ -187,10 +187,8 @@ class Router
             //found a matching route.
             $this->setMatchedRoute(true);
             
-            if($this->getMatchedRoute()){
-                //found the route so stop the loop.
-                break;
-            }
+            //stop the loop
+            break;
         }
     }
 
@@ -203,7 +201,7 @@ class Router
     protected function setDynamicParams($routeUri)
     {
         //pull out parts containing dynamic params with
-        //same index.
+        //same array indexes.
         $routeUriParams = preg_grep(
             $this->getRegex(),$this->chunkUri($routeUri)
         );
