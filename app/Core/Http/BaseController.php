@@ -2,6 +2,8 @@
 
 namespace App\Core\Http;
 
+use Exception;
+
 class BaseController
 {
     /**
@@ -9,7 +11,7 @@ class BaseController
      * 
      * @var string
      */
-    protected $viewPath = __DIR__.'../../../../views/';
+    protected $viewPath = __DIR__.'/../../../views/';
 
     /**
      * Display a view.
@@ -20,7 +22,7 @@ class BaseController
      */
     protected function view($view,$data = [])
     {
-        if($this->exists($view))
+        if(!$this->exists($view))
             throw new Exception("View not Found");
 
         extract($data);
@@ -35,7 +37,7 @@ class BaseController
      */
     protected function include($view)
     {
-        if($this->exists($view))
+        if(!$this->exists($view))
             throw new Exception("Include not found");
         
         include $this->name($view);
@@ -49,7 +51,7 @@ class BaseController
      */
     protected function exists($view)
     {
-        return file_exists($this->viewPath.$view);
+        return file_exists($this->name($view)) ? true : false;
     }
 
     /**
