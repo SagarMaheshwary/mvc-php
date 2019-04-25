@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use App\Core\Http\{Request,Response};
+
 class PagesController extends Controller
 {
 
@@ -10,7 +12,7 @@ class PagesController extends Controller
      * 
      * @return void
      */
-    public function index()
+    public function index(Request $request,Response $response)
     {
         $this->view('home');
     }
