@@ -156,7 +156,7 @@ class Router
         if($this->hasRouteParams()){
             $controller->$action(...$this->getRouteParams());
         }else{
-            $controller->$action();
+            $controller->$action(...$this->getDefaultRouteParams());
         }
     }
 
@@ -177,18 +177,15 @@ class Router
 
             $this->resetDynamicRouteUri();
 
-            if($this->getRouteUri() != $this->getUri()){
-                //didn't match the uri, onto the next index.
-                continue;
-            }else{
-                $this->setDynamicParams($routeUri);
-            }
+            //didn't match the uri, onto the next index.
+            if($this->getRouteUri() != $this->getUri()) continue;
+
+            $this->setDynamicParams($routeUri);
             
             //found a matching route.
             $this->setMatchedRoute(true);
             
-            //stop the loop
-            break;
+            break; //break the loop statement.
         }
     }
 
@@ -211,7 +208,7 @@ class Router
 
         $currentUri = $this->chunkUri($this->getUri());
 
-        $params = [];
+        $params = $this->getDefaultRouteParams();
 
         //set those param values to a new array,
         foreach($routeUriParams as $i => $param){
@@ -404,6 +401,18 @@ class Router
     protected function getRouteParams()
     {
         return $this->routeParams;
+    }
+
+    /**
+     * Request and Response objects
+     * for incoming requests.
+     * 
+     * @param array $params
+     * @return void
+     */
+    protected function getDefaultRouteParams()
+    {
+        return [new Request(),new Response()];
     }
 
     /**

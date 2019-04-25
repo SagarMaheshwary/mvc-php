@@ -15,7 +15,7 @@ use App\Core\Http\Request;
  */
 function dd($data = [])
 {
-    var_dump($data);
+    echo "<pre>",var_dump($data),"</pre>";
     die();
 }
 
@@ -58,6 +58,8 @@ function sanitizeUri($uri)
 
 /**
  * get the csrf token.
+ * 
+ * @return string
  */
 function token()
 {
@@ -66,8 +68,20 @@ function token()
 
 /**
  * get the csrf hidden field
+ * 
+ * @return string
  */
 function csrfField()
 {
     return CSRF::csrfField();
+}
+
+/**
+ * Convert specialchars to html entities.
+ * 
+ * @param string $str
+ * @return string
+ */
+function e($str){
+    return htmlentities($str,ENT_QUOTES,'UTF-8');
 }
