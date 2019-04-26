@@ -17,6 +17,10 @@
     <script src="<?= url('/js/materialize.min.js') ?>"></script>
     <script>
         M.AutoInit();
+        // Flash Message
+        <?php if(session("status")): ?>
+            M.toast({html: "<span><?= flash("status") ?></span>"});
+        <?php endif ?>
     </script>
 </body>
 </html>

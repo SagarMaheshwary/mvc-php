@@ -82,6 +82,30 @@ function csrfField()
  * @param string $str
  * @return string
  */
-function e($str){
+function e($str)
+{
     return htmlentities($str,ENT_QUOTES,'UTF-8');
+}
+
+/**
+ * Get a session value.
+ * 
+ * @param string $key
+ * @return string|bool
+ */
+function session($key)
+{
+    return Session::has($key) ? Session::get($key) : false ;
+}
+
+/**
+ * Set/Get a flash message.
+ * 
+ * @param string $key
+ * @param string|int $value
+ * @return string|bool
+ */
+function flash($key,$value = null)
+{
+    return Session::flash($key,$value);
 }

@@ -13,5 +13,5 @@ use App\Core\Http\{Router,Request};
 App::register('config',require '../config/app.php');
 
 //Call the appropriate route.
-Router::load('../routes/routes.php')
+echo Router::load('../routes/routes.php')
     ->direct(Request::uri(),Request::method());

@@ -10,6 +10,8 @@ class PagesController extends Controller
     /**
      * Show the home page.
      * 
+     * @param App\Core\Http\Request $request
+     * @param App\Core\Http\Response $response
      * @return void
      */
     public function index(Request $request,Response $response)
