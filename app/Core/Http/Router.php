@@ -115,7 +115,7 @@ class Router
      * 
      * @param string $uri
      * @param string $requestType
-     * @return void
+     * @return mixed
      */
     public function direct($uri,$method)
     {
@@ -126,7 +126,7 @@ class Router
 
         if($this->getMatchedRoute()){
             //We got a matching route.
-            $this->callAction(
+            return $this->callAction(
                 ...explode('@',$this->getRouteAction())
             );
         }else{
@@ -141,23 +141,37 @@ class Router
      * 
      * @param string $controller
      * @param string $action
-     * @return void
+     * @return mixed
      */
     protected function callAction($controller,$action)
     {
         $controller = "App\\Controllers\\{$controller}";
 
+        $controller = $this->actionExists($controller,$action);
+        
+        $params = $this->hasRouteParams()
+            ? $this->getRouteParams()
+            : $this->getDefaultRouteParams();
+
+        return $controller->$action(...$params);
+    }
+
+    /**
+     * Check if both controller and it's method exist.
+     * 
+     * @param string $controller
+     * @param string $action
+     * @return mixed|object
+     */
+    protected function actionExists($controller,$action)
+    {
         if(!$controller = new $controller)
             throw new Exception("Controller Not Found");
         
         if(!method_exists($controller,$action))
             throw new Exception("Controller Method not Found");
-        
-        if($this->hasRouteParams()){
-            $controller->$action(...$this->getRouteParams());
-        }else{
-            $controller->$action(...$this->getDefaultRouteParams());
-        }
+
+        return $controller;
     }
 
     /**
