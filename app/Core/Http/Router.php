@@ -6,7 +6,7 @@ use Exception;
 
 /**
  * Router for our MVC Application.
- * This router support both static routes as
+ * This router supports both static routes as
  * well as routes with dynamic parameters.
  */
 class Router
@@ -69,7 +69,7 @@ class Router
      * 
      * @var string
      */
-    private $regex = '/\{(.*?)\}/';
+    private $regex = '/\{(\w+)\}/';
 
     /**
      * Add a route for "GET" method.
@@ -185,17 +185,14 @@ class Router
 
         foreach ($routes as $routeUri => $routeAction) {
             
-            $routeUri = sanitizeUri($routeUri);
-            $this->setRouteUri($routeUri);
+            $this->setRouteUri(sanitizeUri($routeUri));
             $this->setRouteAction($routeAction);
 
-            $this->resetDynamicRouteUri();
+            $this->setDynamicRoute();
 
             //didn't match the uri, onto the next index.
             if($this->getRouteUri() != $this->getUri()) continue;
 
-            $this->setDynamicParams($routeUri);
-            
             //found a matching route.
             $this->setMatchedRoute(true);
             
@@ -204,54 +201,43 @@ class Router
     }
 
     /**
-     * Set the dynamic parameters if any.
-     * 
-     * @param string $routeUri
-     * @return void
-     */
-    protected function setDynamicParams($routeUri)
-    {
-        //pull out parts containing dynamic params with
-        //same array indexes.
-        $routeUriParams = preg_grep(
-            $this->getRegex(),$this->chunkUri($routeUri)
-        );
-
-        //no params so break the execution of this function.
-        if(count($routeUriParams) <= 0) return;
-
-        $currentUri = $this->chunkUri($this->getUri());
-
-        $params = $this->getDefaultRouteParams();
-
-        //set those param values to a new array,
-        foreach($routeUriParams as $i => $param){
-            $params[] = $currentUri[$i];
-        }
-
-        $this->setRouteParams($params);
-    }
-
-    /**
-     * Reset the dynamic route uri with the
-     * current uri.
+     * Set the dynamic parameters and reset route uri with
+     * the current uri if matches.
      * 
      * @return void
      */
-    protected function resetDynamicRouteUri()
+    protected function setDynamicRoute()
     {
         if(!$this->isDynamicRouteUri()) return;
 
-        //uri chunk length and route uri chunk length
-        //didn't match.
-        if(count($this->chunkUri($this->getRouteUri())) 
-        != count($this->chunkUri($this->getUri()))) return;
+        $routeUriChunks = $this->chunkUri($this->getRouteUri());
 
-        //replace the route param placeholders with the
-        //uri values.
-        $this->setRouteUri(
-            preg_replace($this->getRegex(),$this->getRouteUri(),$this->getUri())
+        $uriChunks = $this->chunkUri($this->getUri());
+
+        //pull out parts containing dynamic params with same array indexes.
+        $routeUriParams = preg_grep(
+            $this->getRegex(),$routeUriChunks
         );
+
+        //no params/uri doesn't match so break the execution of this function.
+        if(count($routeUriParams) == 0 
+        && count($uriChunks) != count($routeUriChunks)) return;
+
+        $params = $this->getDefaultRouteParams();
+
+        foreach($routeUriParams as $i => $param){
+
+            //reset the placeholder with the uri value.
+            $routeUriChunks[$i] = $uriChunks[$i];
+
+            //set those param values to a new array,
+            $params[] = $uriChunks[$i];
+
+        }
+
+        $this->setRouteUri(implode('/',$routeUriChunks));
+
+        $this->setRouteParams($params);
     }
 
     /**
@@ -273,31 +259,6 @@ class Router
     protected function chunkUri($uri)
     {
         return explode('/',$uri);
-    }
-
-    /**
-     * Set a route.
-     * 
-     * @param string $method
-     * @param string $uri
-     * @param string $action
-     * @return void
-     */
-    protected function setRoute($method,$uri,$action)
-    {
-        $this->routes[$method][$uri] = $action;
-    }
-
-    /**
-     * Get a specified route.
-     * 
-     * @param string $method
-     * @param string $uri
-     * @return string
-     */
-    protected function getRoute($method,$uri)
-    {
-        return $this->routes[$method][$uri];
     }
 
     /**
