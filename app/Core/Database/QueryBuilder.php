@@ -16,7 +16,16 @@ class QueryBuilder
     | class, you can do CRUD as well as chain where clause(s).
     |
     */
-    
+
+    /**
+     * static instance so we can modify the table
+     * and primary key property with extending to
+     * a model.
+     * 
+     * @var QueryBuilder|null
+     */
+    public static $instance = null;
+
     /**
      * PDO connection.
      * 
@@ -78,6 +87,38 @@ class QueryBuilder
         $conn = $pdo ?: Connection::make();
 
         $this->setPDO($conn);
+    }
+
+    /**
+     * Allow specifying table name so we can query
+     * database without models.
+     * 
+     * @param string $table
+     * @return QueryBuilder
+     */
+    public static function table($table)
+    {
+        $builder = self::instance();
+
+        $builder->table = $table;
+        
+        return self::$instance = $builder;
+    }
+
+    /**
+     * Allow specifying primary key column name so 
+     * we can query database without models.
+     * 
+     * @param string $pk 
+     * @return QueryBuilder
+     */
+    public static function primaryKey($pk)
+    {
+        $builder = self::instance();
+
+        $builder->pk = $pk;
+        
+        return self::$instance = $builder;
     }
 
     /**
@@ -386,13 +427,14 @@ class QueryBuilder
     }
 
     /**
-     * create a new instance
+     * Create a new instance or return the
+     * previously created instance.
      * 
      * @return App\Core\Database\QueryBuilder
      */
     protected static function instance()
     {
-        return new static();
+        return self::$instance ?: new static();
     }
 
     /**
