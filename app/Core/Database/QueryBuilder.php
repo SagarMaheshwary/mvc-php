@@ -2,22 +2,27 @@
 
 namespace App\Core\Database;
 
+use Exception;
 use PDOException;
 
-/**
- * This child-class is used for manipulating database
- * tables. You may use it to make CRUD operations
- * on the database.
- */
 class QueryBuilder
 {
+    /*
+    |--------------------------------------------------------------------------
+    | QueryBuilder
+    |--------------------------------------------------------------------------
+    | 
+    | This class will be responsible for query data from the database. With this
+    | class, you can do CRUD as well as chain where clause(s).
+    |
+    */
     
     /**
      * PDO connection.
      * 
      * @var PDO
      */
-    private $pdo;
+    private $pdo = null;
 
     /**
      * Current table to query from.
@@ -29,44 +34,37 @@ class QueryBuilder
     /**
      * Primary key.
      * 
-     * @var string
+     * @var string|"id"
      */
     protected $pk = "id";
 
     /**
      * Parameters for prepared statements.
      * 
-     * @var array|null
+     * @var array|[]
      */
     private $params = [];
 
     /**
-     * Query results.
+     * Current SQL statement.
      * 
-     * @var mixed
+     * @var string|''
      */
-    private $results;
+    private $sql = '';
 
     /**
-     * Query errors.
+     * Where clause(s).
      * 
-     * @var array|[]
+     * @var string|''
      */
-    private $errors = [];
+    private $where = '';
 
     /**
-     * Current query statement.
+     * Operators for where clause.
      * 
-     * @var PDOStatement
+     * @var array
      */
-    private $query = null;
-
-    /**
-     * Result row count.
-     * 
-     * @var int|0
-     */
-    private $rowCount = 0;
+    private $operators = ['=', '>', '<', '>=', '<=','LIKE','<>'];
 
     /**
      * Magic method that's invoked when a class instance
@@ -76,6 +74,7 @@ class QueryBuilder
      */
     public function __construct(PDO $pdo = null)
     {
+        //if we have a different db connection.
         $conn = $pdo ?: Connection::make();
 
         $this->setPDO($conn);
@@ -91,9 +90,19 @@ class QueryBuilder
     {
         $builder = self::instance();
 
-        $rows = $builder->setSQL("SELECT * FROM %s")->get();
+        return $builder->selectColumns()->get();
+    }
 
-        return $rows;
+    /**
+     * Only select specified columns.
+     * 
+     * @param array|[] $columns
+     */
+    public static function select(array $columns = [])
+    {
+        $builder = self::instance();
+
+        return $builder->selectColumns($columns);
     }
 
     /**
@@ -107,11 +116,10 @@ class QueryBuilder
     {
         $builder = self::instance();
 
-        $row = $builder->setSQL("SELECT * FROM %s WHERE %s = :%s")
-            ->setParams([ $pk => $pk ])
+        return $builder->selectColumns()
+            ->where($builder->pk, "=", $pk)
+            ->setParams([ $builder->pk => $pk ])
             ->first();
-        
-        return $row;
     }
 
     /**
@@ -144,103 +152,243 @@ class QueryBuilder
     /**
      * Delete a row.
      * 
-     * @param int $id
+     * @param int $pk
      * @return bool
      */
-    public static function delete($id)
+    public static function delete(int $pk)
     {
         $builder = self::instance();
-
-        $builder->setSQL("DELETE FROM %s WHERE %s = :%s");
-        return $builder->query() ? true : false;
-    }
-
-    /**
-     * Create or update a row.
-     * 
-     * @param array $params
-     * @param int $id
-     * @return bool
-     */
-    public function createOrUpdate(array $params = [], $id = null)
-    {
-        try{
-
-            //append "id" field to the params array if
-            //available.
-            $id ? $params['id'] = $id : null;
-
-            $this->setParams($params);
-
-            if($id){
-                //we need to update a row.
-                $params = $this->updateParams();
-                $sql = "UPDATE %s SET {$params} WHERE id = :id";
-            }else{
-                //we will insert a row.
-                $cols = $this->insertParams()['cols'];
-                $params = $this->insertParams()['params'];
-                $sql = "INSERT INTO %s ( {$cols} ) VALUES ( $params )";
-            }
-            
-            return $this->setSQL($sql)->query() ? true : false;
-            
-        }catch(PDOException $e){
-            $this->setErrors($this->getMessage());
-        }
+        
+        return $builder->setSQL("DELETE FROM {$builder->table}")
+            ->where($builder->pk, "=", $pk)
+            ->setParams([ $builder->pk => $pk ])
+            ->query() ? true : false;
     }
 
     /**
      * Fetch multiple rows.
      * 
-     * @return stdClass[]|bool
+     * @return stdClass[]|false
+     * @throws Exception
      */
     public function get()
     {
         try{
             return $this->query()->fetchAll();
         }catch(PDOException $e){
-            $this->setErrors($e->getMessage());
+            throw $e;
         }
     }
 
     /**
-     * Fetch the first row from the results.
+     * Fetch the first row.
      * 
-     * @return stdClass
+     * @return stdClass|false
+     * @throws Exception
      */
     public function first()
     {
         try{
-            return $this->setSQL($this->getSQL()." LIMIT 1")->query()->fetch();
+            return $this->appendSQL("LIMIT 1")->query()->fetch();
         }catch(PDOException $e){
-            $this->setErrors($e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Add where clause to an SQL select.
+     * 
+     * @param string $col
+     * @param string $op
+     * @param string $val
+     * @return App\Core\Database\QueryBuilder
+     */
+    public function where($col,$op,$val)
+    {
+        $this->checkOperator($op);
+        
+        $this->makeWhere($col,$op,$val);
+        return $this;
+    }
+
+    /**
+     * Append where "OR" to an SQL statement with where
+     * clause.
+     * 
+     * @param string $col
+     * @param string $op
+     * @param string $val
+     * @return App\Core\Database\QueryBuilder
+     */
+    public function whereOr($col,$op,$val)
+    {
+        $this->checkOperator($op);
+    
+        $this->makeWhere($col,$op,$val,'OR');
+        return $this;
+    }
+
+    /**
+     * Append where "AND" to an SQL statement with where
+     * clause.
+     * 
+     * @param string $col
+     * @param string $op
+     * @param string $val
+     * @return App\Core\Database\QueryBuilder
+     */
+    public function whereAnd($col,$op,$val)
+    {
+        $this->checkOperator($op);
+    
+        $this->makeWhere($col,$op,$val,'AND');
+        return $this;
+    }
+
+    /**
+     * Add where "LIKE" to an SQL select.
+     * 
+     * @param string $col
+     * @param string $val
+     * @return App\Core\Database\QueryBuilder
+     */
+    public function whereLike($col,$val)
+    {
+        $this->makeWhere($col,'LIKE',$val);
+        return $this;
+    }
+
+    /**
+     * Add where "BETWEEN" to an SQL select.
+     * 
+     * @param string $col
+     * @param string $op
+     * @param array $val
+     * @return App\Core\Database\QueryBuilder
+     */
+    public function whereBetween($col,array $val)
+    {
+        $this->makeWhere($col,'',$val,'BETWEEN');
+        return $this;
+    }
+
+    /**
+     * Create or update a row.
+     * 
+     * @param array $params
+     * @param int|null $pk
+     * @return bool
+     * @throws Exception
+     */
+    protected function createOrUpdate(array $params, $pk = null)
+    {
+        try{
+
+            //append "pk" field to the params array if available.
+            $pk ? $params[$this->pk] = $pk : null;
+            
+            $this->setParams($params);
+
+            if($pk){
+                
+                $params = $this->updateParams();
+                
+                $sql = "UPDATE {$this->table} SET {$params} WHERE {$this->pk} = :{$this->pk}";
+
+            }else{
+
+                $cols = $this->getColumnNames(array_keys($params));
+                
+                $placeholders = $this->insertParams();
+
+                $sql = "INSERT INTO {$this->table} ( {$cols} ) VALUES ( {$placeholders} )";
+            }
+
+            return $this->setSQL($sql)->query() ? true : false;
+            
+        }catch(PDOException $e){
+            throw $e;           
         }
     }
 
     /**
      * Query the current SQL statement.
      * 
-     * @return QueryBuilder
+     * @return PDOStatement|false
+     * @throws Exception
      */
     protected function query()
     {
         try {
             $query = $this->getPDO()->prepare($this->getSQL());
-            
-            if(!$query->execute($this->getParams())) return false;
-            $this->setQuery($query);
-            return $query;
+            return $query->execute($this->getParams()) ? $query : false;
 
         } catch (PDOException $e) {
-            $this->setErrors($e->getMessage());
+            throw $e;
         }
+    }
+
+    /**
+     * Select all or specific columns.
+     * 
+     * @param array|[] $columns
+     * @return App\Core\Database\QueryBuilder
+     */
+    protected function selectColumns($columns = [])
+    {
+        $cols = $columns ? $this->getColumnNames($columns) : "*";
+        $this->setSQL("SELECT {$cols} FROM {$this->table}");
+        return $this;
+    }
+
+    /**
+     * Make a where clause for SQL statement.
+     * 
+     * @param string $col
+     * @param string $op
+     * @param string|array $val
+     * @param string|'' $whereOp
+     * @return void
+     */
+    protected function makeWhere($col,$op,$val,$whereOp = '')
+    {
+        $append =  "{$col} {$op} :{$col}";
+
+        switch ($whereOp) {
+            case "BETWEEN":
+                $append = ''; //set it to null
+                $prepend = "WHERE {$col} BETWEEN :val1 AND :val2";
+            break;
+            case "OR":
+                $prepend = "OR ";
+            break;
+            case "AND":
+                $prepend = "AND ";
+            break;
+            default:
+                $prepend = "WHERE ";
+            break;
+        }
+        
+        if($this->getWhere() != '' && $whereOp == "BETWEEN"){
+            $this->appendWhere($prepend.$append);
+        }else{
+            $this->setWhere($prepend.$append);
+        }
+
+        //if the $val is an array then that means
+        //it's params are for between statement.
+        $params = is_array($val) 
+        ? [':val1' => $val[0], ':val2' => $val[1]] 
+        : [$col => $val];
+
+        $this->setParams($params)->appendSQL($this->getWhere());
     }
 
     /**
      * create a new instance
      * 
-     * @return QueryBuilder
+     * @return App\Core\Database\QueryBuilder
      */
     protected static function instance()
     {
@@ -248,7 +396,7 @@ class QueryBuilder
     }
 
     /**
-     * dynamically set column name and placeholders
+     * Set column name and placeholders from params
      * for updating a row.
      * 
      * @return string
@@ -256,32 +404,43 @@ class QueryBuilder
     protected function updateParams()
     {
         $params = $this->getParams();
+        
         $placeholders = '';
         $x = 1;
+
         foreach ($params as $col => $value) {
+
             $placeholders .= "{$col} = :{$col}";
+            
             if(count($params) > $x) $placeholders .= ", ";
+            
             $x++;
+
         }
+
         return $placeholders;
     }
 
     /**
-     * dynamically set column name and placeholders
+     * Set column names to a string from an array.
+     * 
+     * @param array $columns
+     * @return string
+     */
+    protected function getColumnNames($columns)
+    {
+        return implode(', ',$columns);
+    }
+
+    /**
+     * Set column name and placeholders from params
      * for inserting a row.
      * 
      * @return array
      */
     protected function insertParams()
     {
-        $params = array_keys($this->getParams());
-
-        $cols = implode(', ',$params);
-        $placeholders = ":".implode(', :',$params);
-
-        return [
-            'cols' => $cols, 'params' => $placeholders,
-        ];
+        return ":".implode(', :',array_keys($this->getParams()));
     }
 
     /**
@@ -309,13 +468,24 @@ class QueryBuilder
      * Set the current SQL statement.
      * 
      * @param string $sql
-     * @return QueryBuilder
+     * @return App\Core\Database\QueryBuilder
      */
     protected function setSQL($sql)
     {
-        $this->sql = vsprintf($sql,[
-            $this->table, $this->pk, $this->pk,
-        ]);
+        $this->sql = $sql;
+
+        return $this;
+    }
+
+    /**
+     * Append to the current SQL statement.
+     * 
+     * @param string $sql
+     * @return App\Core\Database\QueryBuilder
+     */
+    protected function appendSQL($sql)
+    {
+        $this->sql .= " {$sql}";
 
         return $this;
     }
@@ -331,35 +501,14 @@ class QueryBuilder
     }
 
     /**
-     * Set current statement.
-     * 
-     * @param array|[] $query
-     * @return void
-     */
-    protected function setErrors($errors = [])
-    {
-        array_push($this->errors,$errors);
-    }
-
-    /**
-     * Get current statement.
-     * 
-     * @return array
-     */
-    public function errors()
-    {
-        return $this->errors ?: false;
-    }
-
-    /**
      * Set parameters for current statement.
      * 
      * @param array|[] $params
-     * @return QueryBuilder
+     * @return App\Core\Database\QueryBuilder
      */
     protected function setParams($params = [])
     {
-        $this->params = $params;
+        $this->params = array_merge($this->params,$params);
 
         return $this;
     }
@@ -375,40 +524,62 @@ class QueryBuilder
     }
 
     /**
-     * Set current statement.
+     * Set where clause.
      * 
-     * @param PDOStatement $query
-     * @return QueryBuilder
+     * @param string $sql
+     * @return App\Core\Database\QueryBuilder
      */
-    protected function setQuery($query)
+    protected function setWhere($sql)
     {
-        $this->query = $query;
+        $this->where = " {$sql}";
 
         return $this;
     }
 
     /**
-     * Get current statement.
+     * Append to where string.
      * 
-     * @param array $columns
-     * @return PDOStatement
+     * @param string $sql
+     * @return App\Core\Database\QueryBuilder
      */
-    protected function getQuery()
+    protected function appendWhere($sql)
     {
-        return $this->query;
+        $this->where .= " {$sql}";
+
+        return $this;
     }
 
     /**
-     * Set query results.
+     * Get where statement.
      * 
-     * @param object $rs
-     * @return QueryBuilder
+     * @return string
      */
-    protected function setResults($rs)
+    protected function getWhere()
     {
-        $this->results = $rs;
+        return $this->where ?: '';
+    }
 
-        return $this;
+    /**
+     * Get available operators for where clause.
+     * 
+     * @return array
+     */
+    protected function getOperators()
+    {
+        return $this->operators;
+    }
+
+    /**
+     * Check if the operator exists.
+     * 
+     * @param string $op
+     * @return void
+     * @throws Exception
+     */
+    protected function checkOperator($op){
+        if(!in_array($op,$this->getOperators())){
+            throw new Exception("Invalid Operator!");
+        }
     }
 
 }
