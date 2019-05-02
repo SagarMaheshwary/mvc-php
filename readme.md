@@ -163,9 +163,9 @@ you need to call **get()** or **first()** method after all these methods except 
 You can use certain operators in where clause(s):
 
 - = (equals to)
-- > (less than)
+- \> (less than)
 - < (less than)
-- >= (less than or equals to)
+- \>= (less than or equals to)
 - <= (greater than or equals to)
 - <> (not equals to)
 - LIKE (sql like equivalent)
