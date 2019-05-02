@@ -1,7 +1,14 @@
 # MVC With Plain PHP
 - An mvc app built on php without using any packages.
 
-# Usage
+# Getting the app up and running
+- Clone or download zip from the above green button.
+- We are using psr-4 autoloading standard so you need to have composer installed, after create the autoloader with **dump-autoload**:
+```bash
+    composer dump-autoload -o
+```
+
+# Docs
 
 - [Config](#config)
 - [Routes, Controllers, and Views](#routes-controllers-and-views)
@@ -143,14 +150,14 @@ To create a row you can use **create()** method which takes in an array with col
     ],$id);
 ```
 
-You can also use where clause(s):
+You can also use where clause(s) and whenever you are not using **all()** or **find()** methods then you need to call **select()** method first which will indicate that we are using a select statement:
 ```php
-    Post::where('title','=','title one')->get();
+    Post::select()->where('title','=','title one')->get();
 ```
 
 you need to call **get()** or **first()** method after all these methods except **all()**. get() method will retreive multiple rows and first() will retrieve only first row from the results.
 ```php
-    Post::where('title','=','title one')->first();
+    Post::select()->where('title','=','title one')->first();
 ```
 
 You can use certain operators in where clause(s):
@@ -168,23 +175,23 @@ Certain use cases for where:
 ```php
 
     // where(column,operator,value)
-    Post::where('title','=','title one')->whereOr('title','=','title two')->get(); //SQL where OR
+    Post::select()->where('title','=','title one')->whereOr('title','=','title two')->get(); //SQL where OR
 
-    Post::where('title','=','title one')->whereAnd('title','=','title two')->first(); //SQL where AND
+    Post::select()->where('title','=','title one')->whereAnd('title','=','title two')->first(); //SQL where AND
 
-    Post::where('title','LIKE','%t%')->get(); //SQL where LIKE
+    Post::select()->where('title','LIKE','%t%')->get(); //SQL where LIKE
 
     //you can also use
-    Post::whereLike('title','%t%')->first();
+    Post::select()->whereLike('title','%t%')->first();
 
     // whereBetween(column,['value1',value2'])
-    Post::whereBetween('created_at',['2019-03-01','2019-04-30'])->get(); //SQL where BETWEEN
+    Post::select()->whereBetween('created_at',['2019-03-01','2019-04-30'])->get(); //SQL where BETWEEN
 
 ```
 
-> Note that you can chain multiple whereOr(), whereLike(), and whereAnd() methods if you need.
+> Note that you can also chain multiple whereOr(), whereLike(), and whereAnd() methods if you need.
 
-You can also specify certain columns instead of retrieving all the columns from the table:
+You can also specify certain columns by passing an array of column names to the select() method instead of retrieving all the columns from the table:
 ```php
 
     Post::select(['title'])->get(); //all rows with only title column.
