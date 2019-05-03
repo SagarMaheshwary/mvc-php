@@ -85,4 +85,25 @@ class Session
         }
     }
 
+    /**
+     * Get the previous uri stored in the session.
+     *
+     * @return string
+     */
+    public static function getPreviousUri()
+    {
+        return self::get('_previous_uri');
+    }
+
+    /**
+     * Set the previous uri in the session.
+     *
+     * @param string $uri
+     * @return void
+     */
+    public static function setPreviousUri($uri)
+    {
+        self::set('_previous_uri',$uri);
+    }
+
 }

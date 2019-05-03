@@ -221,7 +221,7 @@ class Router
 
         //no params/uri doesn't match so break the execution of this function.
         if(count($routeUriParams) == 0 
-        && count($uriChunks) != count($routeUriChunks)) return;
+        || count($uriChunks) != count($routeUriChunks)) return;
 
         $params = $this->getDefaultRouteParams();
 

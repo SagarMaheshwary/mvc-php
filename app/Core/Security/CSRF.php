@@ -24,7 +24,7 @@ class CSRF
 
     /**
      * Match the csrf token and delete the
-     * token cookie if exists.
+     * token if exists.
      * 
      * @return string $token
      * @return string

@@ -3,6 +3,7 @@
 namespace App\Core\Http;
 
 use Exception;
+use App\Core\Support\Session;
 
 class BaseController
 {
@@ -27,6 +28,7 @@ class BaseController
 
         extract($data);
         require $this->name($view);
+        return $this;
     }
 
     /**
@@ -65,4 +67,18 @@ class BaseController
         $view = str_replace('.','/',$view);
         return $this->viewPath.$view.'.php';
     }
+
+    /**
+     * Set a flash message to session.
+     * 
+     * @param string $key
+     * @param string $value
+     * @return void
+     */
+    public function with($key,$value)
+    {
+        Session::flash($key,$value);
+        return $this;
+    }
+
 }

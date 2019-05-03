@@ -3,10 +3,20 @@
 namespace App\Core\Http;
 
 use App\Core\Support\Session;
-use App\Core\Http\BaseController;
+use App\Core\Http\{BaseController,Request};
 
-class Response
+class Response extends BaseController
 {
+    /**
+     * Current request object.
+     * @var Request
+     */
+    protected $request;
+
+    public function __construct()
+    {
+        $this->request = new Request;
+    }
 
     /**
      * Set a header.
@@ -45,9 +55,9 @@ class Response
     public function redirect($url)
     {
         if(is_int($url)){
-            $this->errors($url);
+            $this->httpError($url);
         }else{
-            $this->header("location",$url);
+            $this->header("Location",$url,302);
         }
         return $this;
     }
@@ -65,16 +75,58 @@ class Response
     }
 
     /**
-     * Set a flash message to session.
+     * Force an http error and display an error
+     * view.
      * 
-     * @param string $key
-     * @param string $value
+     * @param int $code
      * @return void
      */
-    public function with($key,$value)
+    protected function httpError($code)
     {
-        Session::flash($key,$value);
-        return $this;
+        switch ($code) {
+            case 403:
+                //403 forbidden!
+                $this->statusCode($code);
+                $this->view('errors.403');
+            break;
+            case 404:
+                $this->statusCode($code);
+                //404 not found!
+                $this->view('errors.404');
+            break;
+            case 503:
+                //503 service unavailable!
+                $this->statusCode($code);
+                $this->view('errors.503');
+            break;
+            case 500:
+            default:
+                //500 internal server error!
+                $this->statusCode($code);
+                $this->view('errors.500');
+            break;
+        }
+    }
+
+    /**
+     * Set current request object.
+     * 
+     * @param Request $request
+     * @return void
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * Get current request object.
+     * 
+     * @return Request
+     */
+    public function getRequest()
+    {
+        return $this->request;
     }
 
 }
