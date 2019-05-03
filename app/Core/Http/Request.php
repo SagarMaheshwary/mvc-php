@@ -2,6 +2,7 @@
 
 namespace App\Core\Http;
 
+use App\Core\Support\Session;
 use Exception;
 
 class Request
@@ -120,7 +121,7 @@ class Request
      */
     public static function has($key)
     {
-        return isset($_REQUEST[$key]);
+        return (!isset($_REQUEST[$key]) || $_REQUEST[$key] == '') ? false : true;
     }
 
     /**
@@ -131,7 +132,7 @@ class Request
      */
     public static function get($key)
     {
-        return self::isMethod("GET") && self::has($key) ? self::input($key) : '';
+        return self::isMethod("GET") && self::has($key) ? e(self::input($key)) : '';
     }
 
     /**
@@ -142,7 +143,7 @@ class Request
      */
     public static function post($key)
     {
-        return self::isMethod("POST") && self::has($key) ? self::input($key) : '';
+        return self::isMethod("POST") && self::has($key) ? e(self::input($key)) : '';
     }
 
     /**
@@ -163,6 +164,27 @@ class Request
     public static function file($key)
     {
         return self::hasFile($key) ? $_FILES[$key] : false;
+    }
+
+    /**
+     * Check whether the request accepts json.
+     * 
+     * @return bool
+     */
+    public static function isJsonRequest()
+    {
+        return (strtolower($_SERVER['HTTP_ACCEPT']) == 'application/json')
+        ? true : false;
+    }
+
+    /**
+     * Get the previous request url.
+     * 
+     * @return string
+     */
+    public static function previousUrl()
+    {
+        return url(Session::getPreviousUri());
     }
 
     /**
@@ -209,7 +231,7 @@ class Request
             'SERVER_PORT'          => $_SERVER['SERVER_PORT'],
             'SERVER_SOFTWARE'      => $_SERVER['SERVER_SOFTWARE'],
             'SERVER_PROTOCOL'      => $_SERVER['SERVER_PROTOCOL'],
-            'HTTP_HOST'          => $_SERVER['HTTP_HOST'],
+            'HTTP_HOST'            => $_SERVER['HTTP_HOST'],
             'HTTP_ACCEPT'          => $_SERVER['HTTP_ACCEPT'],
             'HTTP_USER_AGENT'      => $_SERVER['HTTP_USER_AGENT'],
             'HTTP_ACCEPT_ENCODING' => $_SERVER['HTTP_ACCEPT_ENCODING'],
