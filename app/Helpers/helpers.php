@@ -3,9 +3,11 @@
 /**
  * Global helpers.
  */
-use App\Core\Support\Session;
-use App\Core\Security\{Hash,CSRF};
+
 use App\Core\Http\Request;
+use App\Core\Security\{Hash,CSRF};
+use App\Core\Validation\MessageBag;
+use App\Core\Support\{Session,App};
 
 /**
  * dump the data and kill the page.
@@ -108,4 +110,14 @@ function session($key)
 function flash($key,$value = null)
 {
     return Session::flash($key,$value);
+}
+
+/**
+ * Errors from messagebag (Validation errors).
+ * 
+ * @return \App\Core\Validation\MessageBag
+ */
+function errors()
+{
+    return App::get('errors');
 }
