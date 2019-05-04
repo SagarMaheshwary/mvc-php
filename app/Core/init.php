@@ -22,6 +22,15 @@ use App\Core\Http\{Router,Request};
 //register configuration to the app.
 App::register('config',require '../config/app.php');
 
+/**
+ * Register MessageBag with all the validation errors 
+ * from session to the App container/registry so we
+ * can use them later.
+ */
+$messageBag = new MessageBag(new Session);
+$messageBag->setMessages(Session::flash('errors'));
+App::register('errors',$messageBag);
+
 //Call the appropriate route.
 $output = Router::load('../routes/routes.php')
     ->direct(Request::uri(),Request::method());
