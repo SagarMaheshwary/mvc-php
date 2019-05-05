@@ -69,10 +69,10 @@ class Session
      * (Flash message)
      * 
      * @param string $key
-     * @param string $value
+     * @param string|null $value
      * @return mixed
      */
-    public static function flash($key,$value)
+    public static function flash($key,$value = null)
     {
         if(self::has($key)){
             //value exists so return and unset it.
