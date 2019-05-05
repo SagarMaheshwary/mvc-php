@@ -95,7 +95,7 @@ class MessageBag
      */
     public function messages($key)
     {
-        $this->has($key) ? $this->messages[$key] : '';
+        return $this->has($key) ? $this->messages[$key] : '';
     }
 
     /**

@@ -2,8 +2,9 @@
 
 namespace App\Core\Http;
 
-use App\Core\Support\Session;
 use Exception;
+use App\Core\Support\Session;
+use App\Core\Validation\Validator;
 
 class Request
 {
@@ -175,6 +176,18 @@ class Request
     {
         return (strtolower($_SERVER['HTTP_ACCEPT']) == 'application/json')
         ? true : false;
+    }
+
+    /**
+     * Validate the current Request.
+     * 
+     * @param array $rules
+     * @return void
+     */
+    public function validate($rules)
+    {
+        $validator = new Validator();
+        $validator->validate($this,$rules);
     }
 
     /**
