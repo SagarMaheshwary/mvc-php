@@ -15,9 +15,10 @@ ini_set("error_append_string ", "</pre>");
 /**
  * Bootstrap the Application
  */
+
 use App\Core\Support\{App,Session};
-use App\Core\Database\{Connection,Model};
 use App\Core\Http\{Router,Request};
+use App\Core\Validation\MessageBag;
 
 //register configuration to the app.
 App::register('config',require '../config/app.php');
