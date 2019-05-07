@@ -212,10 +212,123 @@ Just like above, you should specify table() first in every method chain. If you 
 ```
 
 ## Request and Response
-Will be added soon!
+Request class from app/Core/Http directory contains all the methods and properties related to the request. Here are the available methods:
+```php
+    //methods that you can access statically and from the object instance.
+
+    //current request method.
+    Request::method();
+    
+    //check for the request method.
+    Request::isMethod('MethodName');
+
+    //current request URI.
+    Request::uri();
+
+    // value of the input (both get and post methods).
+    Request::input('key');
+
+    //check if the input exists (both get and post methods).
+    Request::has('key');
+    
+    //input value from $_GET global.
+    Request::get('key');
+
+    //input value from $_POST global.
+    Request::post('key');
+
+    //check if the file was uploaded.
+    Request::hasFile('key');
+    
+    //get the file.
+    Request::file('key');
+
+
+    //check if the request is an ajax request and expecting json.
+    Request::isJsonRequest();
+
+    //validates the current request (more details in validation section).
+    Request::validate();
+
+    //returns the previous request url.
+    Request::previousUrl();
+
+    //Methods that can only be accessed by the instance.
+    $request = new Request;
+
+    //get all the cookies.
+    $request->cookies();
+    
+    //get all the uploaded files.
+    $request->files();
+
+    //get the query string values as an assoc array.
+    $request->query();
+
+    //get the $_SERVER global values.
+    $request->server();
+
+    //get the request headers.
+    $request->headers();
+
+    //you can also access $_GET, $_POST, and $_FILES values dynamically.
+    
+    //returns the value of "name" input. Same as $request->input('name').
+    $request->name;
+
+    //returns the uploaded file "image". Same as $request->file('image').
+    $request->image;
+```
 
 ## Session and Cookies
-Will be added soon!
+Session class is stored in the app/Core/Support directory. Session methods:
+```php
+
+    //get a session value.
+    Session::get();
+
+    //set a session value.
+    Session::set('key');
+
+    //check if a session value exists.
+    Session::has('key');
+
+    //Unset/remove a session value.
+    Session::unset('key');
+
+    //set a session value the will be available for the next request also known as a flash value/message. Don't specify the second argument if you want to retrieve the flash value.
+    Session::flash('key','value');
+
+    //Destroy the session.
+    Session::destroy();
+    
+    //Setting the previous Uri is defined in the Session class and can be access publically. Note that this is just the URI not the complete URL.
+    Session::getPreviousUri();
+```
+Cookie class is also stored in app/Core/Support directory. Here are the available methods:
+```php
+
+    //Get a cookie value.
+    Cookie::get('cookieName');
+
+    //Check if a cookie exists.
+    Cookie::has('cookieName');
+
+    //Unset/remove a cookie.
+    Cookie::unset('cookieName');
+    
+    //Set a cookie value.
+    Cookie::set('key','value',expiry);
+```
+
+All parameters for the set() method:
+1. cookie key
+2. cookie value
+3. cookie expiry
+4. httponly (boolean, default "false") | this way the cookie won't be accessed with javascript.
+5. path (default "/")
+6. domain (default "null")
+7. secure (default "false")
 
 ## Helpers
 Will be added soon!

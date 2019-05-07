@@ -13,35 +13,35 @@ class Request
      * 
      * @var array
      */
-    public $cookies = [];
+    private $cookies = [];
 
     /**
      * Server details from current request.
      * 
      * @var array
      */
-    public $server = [];
+    private $server = [];
 
     /**
      * Current request files.
      * 
      * @var array
      */
-    public $files = [];
+    private $files = [];
 
     /**
      * Current request headers.
      * 
      * @var array
      */
-    public $headers = [];
+    private $headers = [];
 
     /**
      * Query String values from current request.
      * 
      * @var array
      */
-    public $query = [];
+    private $query = [];
 
     /**
      * Request data for dynamic access.
@@ -53,15 +53,17 @@ class Request
     /**
      * Set all the request properties with the
      * class is instantiated.
+     * 
+     * @return void
      */
     public function __construct()
     {
-        $this->attributes();
-        $this->cookies();
-        $this->server();
-        $this->query();
-        $this->files();
-        $this->headers();
+        $this->setAttributes();
+        $this->setCookies();
+        $this->setServer();
+        $this->setQuery();
+        $this->setFiles();
+        $this->setHeaders();
     }
 
     /**
@@ -201,13 +203,33 @@ class Request
     }
 
     /**
-     * Set all the cookies
+     * Get all the cookies.
+     * 
+     * @return array
+     */
+    public function cookies()
+    {
+        return $this->cookies;
+    }
+
+    /**
+     * Set all the cookies.
      * 
      * @return void
      */
-    protected function cookies()
+    protected function setCookies()
     {
         $this->cookies = $_COOKIE;
+    }
+
+    /**
+     * Get the query string.
+     * 
+     * @return array key/value pairs of query string
+     */
+    public function query()
+    {
+        return $this->query;
     }
 
     /**
@@ -216,7 +238,7 @@ class Request
      * 
      * @return void
      */
-    protected function query()
+    protected function setQuery()
     {
         if(!$_SERVER['QUERY_STRING']) return;
         
@@ -232,11 +254,21 @@ class Request
     }
 
     /**
-     * Set all the server global values.
+     * Get the $_SERVER values.
+     * 
+     * @return array
+     */
+    public function server()
+    {
+        return $this->server;
+    }
+
+    /**
+     * Set the $_SERVER global values.
      * 
      * @return void
      */
-    protected function server()
+    protected function setServer()
     {
         $this->server = [
             'DOCUMENT_ROOT'        => $_SERVER['DOCUMENT_ROOT'],
@@ -262,13 +294,33 @@ class Request
     }
 
     /**
+     * Get all the headers
+     * 
+     * @return array
+     */
+    public function headers()
+    {
+        return $this->headers;
+    }
+
+    /**
      * Set all the headers
      * 
      * @return void
      */
-    protected function headers()
+    protected function setHeaders()
     {
         $this->headers = getallheaders();
+    }
+
+    /**
+     * Get all the uploaded files.
+     * 
+     * @return void
+     */
+    public function files()
+    {
+        return $this->files;
     }
 
     /**
@@ -276,7 +328,7 @@ class Request
      * 
      * @return void
      */
-    protected function files()
+    protected function setFiles()
     {
         $this->files = $_FILES;
     }
@@ -288,7 +340,7 @@ class Request
      * 
      * @return void
      */
-    protected function attributes()
+    protected function setAttributes()
     {
         $request = [];
 
@@ -305,7 +357,7 @@ class Request
      * @return mixed
      */
     public function __get($key){
-        return e($this->attributes[$key]);
+        return $this->attributes[$key];
     }
 
     /**
