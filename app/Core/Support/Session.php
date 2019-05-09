@@ -106,4 +106,30 @@ class Session
         self::set('_previous_uri',$uri);
     }
 
+    /**
+     * Get the input value from the previous request.
+     * 
+     * @param string $key
+     * @return mixed
+     */
+    public static function getOldInput($key)
+    {
+        return isset(self::get('_old_input')[$key]) 
+        ? self::flash('_old_input')[$key] : '';
+    }
+
+    /**
+     * set the input (POST) values from the previous request.
+     * 
+     * @return void
+     */
+    public static function setOldInput()
+    {
+        $inputs = [];
+        foreach ($_POST as $input => $value) {
+            $inputs[e($input)] = e($value);
+        }
+
+        self::set('_old_input',$inputs);
+    }
 }

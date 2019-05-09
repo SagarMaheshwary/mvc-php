@@ -117,6 +117,9 @@ class Validator
             //will store the messageBag errors to the session.
             $this->getRules()->getMessageBag()->store();
 
+            //store the post request input values in the session.
+            Session::setOldInput();
+
             //redirecting the user back to the previous url.
             $response->redirect($request->previousUrl());
 

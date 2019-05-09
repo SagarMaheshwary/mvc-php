@@ -17,7 +17,9 @@
 - [Request and Response](#request-and-response)
 - [Session and Cookies](#session-and-cookies)
 - [Helpers](#helpers)
+- [Validation](#validation)
 - [Security](#security)
+- [Authentication](#authentication)
 
 ## Config
 Config array is registered in the app container inside the app/Core/init.php and the values are loaded from config/app.php file. This config file has all the credentials related to app, database, session, and cookies. To retrieve a certain config value you can use the Config class:
@@ -356,7 +358,7 @@ app/Helpers directory has helpers.php file which is loaded from composer. This f
 
 - **csrfField()** will return a hidden input field with a csrf token.
 
-- **e('<p>string</p>')** will convert special characters from the given string to html entities.
+- **e('\<p>string\</p>')** will convert special characters from the given string to html entities.
 
 - **session('key')** will return the session value.
 
@@ -364,5 +366,13 @@ app/Helpers directory has helpers.php file which is loaded from composer. This f
 
 - **errors()** will return the MessageBag object used for validation messages. (more info in validation section)
 
+- **old('input')** will return an input value from the previous POST request (used for validation). All the previous input values will be stored in the session.
+
+## Validation
+Will be added soon!
+
 ## Security
+Will be added soon!
+
+## Authentication
 Will be added soon!

@@ -121,3 +121,13 @@ function errors()
 {
     return App::get('errors');
 }
+
+/**
+ * Get the input value from the previous request.
+ * 
+ * @return mixed
+ */
+function old($key)
+{
+    return Session::getOldInput($key);
+}
