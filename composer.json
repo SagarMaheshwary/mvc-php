@@ -1,5 +1,6 @@
 {
-    "name": "mvcblog",
+    "name": "sagarmaheshwary/mvc-php",
+    "license": "MIT",
     "description": "An MVC app creating in plain php",
     "autoload": {
         "psr-4": {

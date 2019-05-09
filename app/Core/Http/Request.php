@@ -247,7 +247,11 @@ class Request
         
         foreach($strings as $string){
             $val = explode('=',e($string));
-            $query[$val[0]] = $val[1];
+            
+            //we will check if we don't have something like
+            //url/key instead of url/key=value or else we will
+            //get an error.
+            $query[$val[0]] = isset($val[1]) ? $val[1] : '';
         }
 
         $this->query = $query;
@@ -336,7 +340,7 @@ class Request
     /**
      * Set all the $_REQUEST and $_FILES to 
      * $attributes property for dynamic
-     * access
+     * access.
      * 
      * @return void
      */
@@ -362,6 +366,10 @@ class Request
 
     /**
      * Dynamically get request attributes.
+     * 
+     * @param string $key
+     * @param mixed $value
+     * @return void
      */
     public function __set($key,$value){
         $this->attributes[e($key)] = e($value);
@@ -369,6 +377,9 @@ class Request
 
     /**
      * Dynamically check for request attributes.
+     * 
+     * @param string $key
+     * @return mixed
      */
     public function __isset($key)
     {
@@ -377,6 +388,9 @@ class Request
 
     /**
      * Dynamically unset request attributes.
+     * 
+     * @param string $key
+     * @return void
      */
     public function __unset($key)
     {

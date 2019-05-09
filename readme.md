@@ -7,6 +7,7 @@
 ```bash
     composer dump-autoload -o
 ```
+- public directory is the root of this app and you need to create a virtual host. It already has a .htaccess file so you can run it with apache.
 
 # Docs
 
@@ -19,7 +20,7 @@
 - [Security](#security)
 
 ## Config
-Config array is register in the app container inside the app/Core/init.php and the values are loaded from config/app.php file. This config file has all the credentials related to app, database, session, and cookies. To retrieve a certain config value you can use the Config class:
+Config array is registered in the app container inside the app/Core/init.php and the values are loaded from config/app.php file. This config file has all the credentials related to app, database, session, and cookies. To retrieve a certain config value you can use the Config class:
 
 ```php
     <?php
@@ -200,7 +201,7 @@ You can also specify certain columns by passing an array of column names to the 
     
 ```
 
-Sometimes you want to query the table without a model and for that you can use table() method for:
+Sometimes you want to query the table without a model and for that you can use table() method:
 ```php
     use App\Core\Database\QueryBuilder; // import the class.
 
@@ -243,7 +244,6 @@ Request class from app/Core/Http directory contains all the methods and properti
     //get the file.
     Request::file('key');
 
-
     //check if the request is an ajax request and expecting json.
     Request::isJsonRequest();
 
@@ -254,6 +254,7 @@ Request class from app/Core/Http directory contains all the methods and properti
     Request::previousUrl();
 
     //Methods that can only be accessed by the instance.
+
     $request = new Request;
 
     //get all the cookies.
@@ -324,14 +325,44 @@ Cookie class is also stored in app/Core/Support directory. Here are the availabl
 All parameters for the set() method:
 1. cookie key
 2. cookie value
-3. cookie expiry
-4. httponly (boolean, default "false") | this way the cookie won't be accessed with javascript.
+3. cookie expiry (default 0)
+4. httponly (boolean, default false) | if you set it to true then the cookie won't be accessed with javascript.
 5. path (default "/")
-6. domain (default "null")
-7. secure (default "false")
+6. domain (default null)
+7. secure (default false)
 
 ## Helpers
-Will be added soon!
+app/Helpers directory has helpers.php file which is loaded from composer. This file will be used for defining all the helper functions. Here's the list of available helper functions.
+
+- **dd()** helper takes in an array. This helper function will dump the data and kill the page/execution of the script.
+
+- **url()** helper takes in the uri string and will return the complete url. Example:
+```php
+    
+    //Our example url is: dev.mvc.com
+    url('contact'); // returns: dev.mvc.com/contact
+
+    //you don't need to include the first slash and even if you include the slash it will be removed.
+    url('/'); //returns dev.mvc.com
+    url(); //same as above.
+
+```
+
+- **currentUrl()** returns the current url.
+
+- **sanitizeUri('my/uri/string')** will return the sanitized uri. it with also remove the slash at the start.
+
+- **token()** will generate a csrf token.
+
+- **csrfField()** will return a hidden input field with a csrf token.
+
+- **e('<p>string</p>')** will convert special characters from the given string to html entities.
+
+- **session('key')** will return the session value.
+
+- **flash('key','optional value')** will create a flash message. To retrieve a flash value you only need to pass the key e.g **flash('key')**.
+
+- **errors()** will return the MessageBag object used for validation messages. (more info in validation section)
 
 ## Security
 Will be added soon!

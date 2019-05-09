@@ -66,6 +66,7 @@ class Response extends BaseController
      * return json response.
      * 
      * @param mixed|[] $data
+     * @param int $code
      * @return mixed
      */
     public function json($data = [],$code = 200)

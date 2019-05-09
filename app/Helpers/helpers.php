@@ -97,7 +97,7 @@ function e($str)
  */
 function session($key)
 {
-    return Session::has($key) ? Session::get($key) : false ;
+    return Session::get($key);
 }
 
 /**
