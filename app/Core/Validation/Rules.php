@@ -34,10 +34,7 @@ class Rules
     }
 
     /**
-     * Check if an input/file exists and if it doesn't
-     * then we will set the $isOptionalField to true and
-     * skip the rest of the validation check for this
-     * input/file.
+     * Check if an input exists.
      * 
      * @param string $field
      * @return bool

@@ -24,7 +24,7 @@ class QueryBuilder
      * 
      * @var QueryBuilder|null
      */
-    public static $instance = null;
+    private static $instance = null;
 
     /**
      * PDO connection.
