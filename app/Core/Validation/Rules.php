@@ -196,22 +196,29 @@ class Rules
      * @param string $field
      * @param string $table
      * @param string $column
-     * @param int $id
+     * @param int|null $id
+     * @param string|"id" $pk
      * @return void
      */
     public function validateUnique($field, $table, $column, $id = null, $pk = "id")
     {
         //check with just column.
-        $query = QueryBuilder::table($table)->select()->where($column,'=',$this->value($field));
+        $query = QueryBuilder::table($table)
+            ->select()
+            ->where(
+                $column, '=', $this->value($field)
+            );
         
         //add the primary key value to ignore the specific row.
         //Note: This will help in updating a specific row.
         $rs = $id ? $query->whereAnd($pk,'<>',$id) : $query;
 
         if($rs->first()){
+
             //if we get a row from the db then that means
             //the value not unique.
             $this->error($field,"already exists!");
+
         }
     }
 

@@ -346,13 +346,14 @@ class Request
      */
     protected function setAttributes()
     {
+        $inputs = array_merge($_GET,$_POST);
         $request = [];
 
-        foreach ($_REQUEST as $key => $value) {
+        foreach ($inputs as $key => $value) {
             $request[e($key)] = e($value);
         }
 
-        $this->attributes = array_merge($request,$_FILES);
+        $this->attributes = $request;
     }
 
     /**

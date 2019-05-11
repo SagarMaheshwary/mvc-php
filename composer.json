@@ -1,7 +1,7 @@
 {
     "name": "sagarmaheshwary/mvc-php",
     "license": "MIT",
-    "description": "An MVC app creating in plain php",
+    "description": "An MVC framework for learners.",
     "autoload": {
         "psr-4": {
             "App\\": "app/"

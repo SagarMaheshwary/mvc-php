@@ -55,7 +55,8 @@ class Validator
         
         /**
          * Unique value to a database column value.
-         * Rule syntax: unique:table,column,id.
+         * Rule syntax: unique:table,column,id,
+         * primary-key-column.
          * pass the id (primary key) value if you
          * are updating a row.
          */

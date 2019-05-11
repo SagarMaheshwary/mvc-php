@@ -249,15 +249,15 @@ Request class from app/Core/Http directory contains all the methods and properti
     //check if the request is an ajax request and expecting json.
     Request::isJsonRequest();
 
-    //validates the current request (more details in validation section).
-    Request::validate();
-
     //returns the previous request url.
     Request::previousUrl();
 
     //Methods that can only be accessed by the instance.
 
     $request = new Request;
+
+    //validates the current request (more details in validation section).
+    $request->validate();
 
     //get all the cookies.
     $request->cookies();
@@ -274,10 +274,8 @@ Request class from app/Core/Http directory contains all the methods and properti
     //get the request headers.
     $request->headers();
 
-    //you can also access $_GET, $_POST, and $_FILES values dynamically.
-    
-    //returns the value of "name" input. Same as $request->input('name').
-    $request->name;
+    //you can also access $_GET and $_POST values dynamically.
+    $request->name; //returns the value of "name" input. Same as $request->input('name').
 
     //returns the uploaded file "image". Same as $request->file('image').
     $request->image;
@@ -299,13 +297,16 @@ Session class is stored in the app/Core/Support directory. Session methods:
     //Unset/remove a session value.
     Session::unset('key');
 
-    //set a session value the will be available for the next request also known as a flash value/message. Don't specify the second argument if you want to retrieve the flash value.
+    //set a session value the will be available for the next request also
+    //known as a flash value/message. Don't specify the second argument if
+    //you want to retrieve the flash value.
     Session::flash('key','value');
 
     //Destroy the session.
     Session::destroy();
     
-    //Setting the previous Uri is defined in the Session class and can be access publically. Note that this is just the URI not the complete URL.
+    //Setting the previous Uri is defined in the Session class and can be access
+    //publically. Note that this is just the URI not the complete URL.
     Session::getPreviousUri();
 ```
 Cookie class is also stored in app/Core/Support directory. Here are the available methods:
@@ -364,12 +365,111 @@ app/Helpers directory has helpers.php file which is loaded from composer. This f
 
 - **flash('key','optional value')** will create a flash message. To retrieve a flash value you only need to pass the key e.g **flash('key')**.
 
-- **errors()** will return the MessageBag object used for validation messages. (more info in validation section)
+- **errors()** will return the MessageBag object used for validation messages. (more info in [validation](#validation) section)
 
-- **old('input')** will return an input value from the previous POST request (used for validation). All the previous input values will be stored in the session.
+- **old('input')** will return an input value from the previous POST request (used for [validation](#validation)). All the previous input values will be stored in the session.
 
 ## Validation
-Will be added soon!
+Validation class **Validator** is stored in app\Core\Validation directory. **validate()** method is used for validation which takes in two arguments, request object and validation rules array. example:
+```php
+    use App\Core\Validation\Validator;
+
+    $validator = new Validator;
+    $validator->validate($request,[
+        'title' => 'required|min:2|max:100',
+        'body'  => 'required|min:10|max:1000',
+    ]);
+```
+
+**title** and **body** keys in the above example are the names of the input submitted by a form. If the validation failed you will be redirected back to the previous url. All the validation errors will be stored in session only for the next request. Instead of directly using validator, you can use **$request->validate()** method which only needs an array of rules:
+```php
+    <?php
+
+    namespace App\Controllers;
+
+    use App\Core\Http\{Request,Response};
+
+    class SampleController extends Controller
+    {
+        public function store(Request $request,Response $response)
+        {
+            $request->validate([
+                'title' => 'required',
+                'body' => 'required',
+            ]);
+
+            //other code....
+        }
+    }
+```
+
+**errors()** helper is available which will be return the MessageBag instance which contains all the validation errors. available methods:
+```php
+    
+    //Get the first error message (string) for an input.
+    $firstError = errors()->first('title');
+
+    //Get an array of error messages for an input.
+    $messages = errors()->messages('title');
+
+    //Get an array containing all the messages for all inputs.
+    $all = errors()->all();
+
+    //Check if an input field has errors.
+    $hasFailed = errors()->has('title');
+```
+
+**old()** method can be used for retrieving old input values after a failed validation and it will return an empty string if a value doesn't exists.
+
+Example for a view form with materialize-css:
+```php
+    <form method="post" action="<?= url('/posts/store') ?>">
+        <div class="input-field">
+            <input type="text" name="title" value="<?= old('title') ?>">
+            <?php if(errors()->has('title')): ?>
+                <span class="helper-text">
+                    <?= errors()->first('title') ?>
+                </span>
+            <?php endif ?>
+        </div>
+        <button class="btn">Create</button>
+    </form>
+```
+
+Available validation rules:
+- **required** check if an input field is not empty or present.
+- **optional** ignore the rest of the rules if an input is null/empty (this will only ignore rules for that input).
+- **string** check if an input value is a string.
+- **integer** check if an input value is an integer.
+- **numeric** check if an input value is numeric.
+- **alpha_numeric** check if an input contains alpha numeric value.
+- **email** check if an input value is a valid email.
+- **file** check if an input is an upload file.
+
+Parameter rules:
+- **min:length** checks the minimum length of an integer or a string. usage: 'min:10' or 'min:50'.
+- **max:length** checks the maximum length of an integer or a string. usage: 'max:1000' or 'max:50000'
+- **unique:table,column,id,primarykeycolumn** check if a value is unique to the database. Usage:
+```php
+    //table name: users.
+    //table column to search from: email
+    $request->validate([
+        'email' => 'required|email|unique:users,email',
+    ]);
+
+    //if you are updating the user then you need to specify the
+    //row id (primary key value) of that user row.
+    $request->validate([
+        'email' => 'required|email|unique:users,email,1',
+    ]);
+
+    //mostly we name primary key column "id" but if you are using
+    //a different column then you can specify that as the fourth
+    //parameter
+    $request->validate([
+        'email' => 'required|email|unique:users,email,1,pk_column',
+    ]);
+```
 
 ## Security
 Will be added soon!
