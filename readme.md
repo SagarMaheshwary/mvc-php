@@ -1,5 +1,5 @@
 # MVC With Plain PHP
-- An mvc app built on php without using any packages.
+- An mvc framework built on php without using any packages.
 
 # Getting the app up and running
 - Clone or download zip from the above green button.
@@ -39,7 +39,7 @@ Config array is registered in the app container inside the app/Core/init.php and
 You can use dots to go deep into the arrays. **database** is the name of the array and **name** is the key inside that array.
 
 ## Routes Controllers and Views
-Router for this mvc also support dynamic uris and currently only two types of methods are allowed, GET and POST. Routes can be created in the **routes/routes.php** file and you can also specify a different routes file to **Router::load()** method inside **app/Core/init.php** file.
+Router for this mvc also support dynamic uris. Routes can be created in the **routes/routes.php** file and you can also specify a different routes file to **Router::load()** method inside **app/Core/init.php** file.
 
 To create a route, you can do:
 ```php
@@ -58,10 +58,29 @@ Controller method:
         echo "The user id is: {$id}";
     }
 ```
-
-A route for creating a post request will be:
+Available router methods:
 ```php
-    $router->post('/users','UsersController@store');
+    <?php
+
+    $router->get('uri','controller@method');
+    $router->post('uri','controller@method');
+    $router->put('uri','controller@method');
+    $router->delete('uri','controller@method');
+```
+
+Html forms don't support PUT and DELETE request methods so you need to add a hidden input named **_method**:
+```php
+    //PUT request
+    <form method="post" action="/">
+        <input type="hidden" name="_method" value="PUT">
+        //other form fields...
+    </form>
+
+    //DELETE request
+    <form method="post" action="/">
+        <input type="hidden" name="_method" value="DELETE">
+        //other form fields...
+    </form>
 ```
 
 All controllers will be stored in **app/Controllers** directory. This directory already has a **Controller.php** file which has all the methods like view() and include(). This controller needs to be extended by every controller. Syntax for a simple controller is defined below:
@@ -86,7 +105,7 @@ All controllers will be stored in **app/Controllers** directory. This directory 
     }
 ```
 
-You can use **view()** method which takes in two parameters, first view name/path and second data array that needs to be passed to that view. Just like laravel you can use dot sytax e.g if the **profile** view is in the **users** directory then you will do:
+You can use **view()** method which takes in two parameters, first view name/path and second data array that needs to be passed to that view (optional). Just like laravel you can use dot sytax e.g if the **profile** view is in the **users** directory then you will do:
 ```php
     public function index()
     {

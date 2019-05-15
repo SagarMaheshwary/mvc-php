@@ -34,15 +34,14 @@ return [
      * Cookies
      */
     'cookie' => [
-        
+        'csrf_token' => 'token'
     ],
 
     /**
      * Session
      */
     'session' => [
-        'name' => 'my_session',
-        'csrf_token' => 'my_csrf_token',
-    ]
+        'csrf_token' => 'csrf_token',
+    ],
 
 ];

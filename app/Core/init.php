@@ -46,4 +46,4 @@ if(Request::isJsonRequest() && is_string($output)){
  * and that way we can save the current uri and use it in
  * the next request as the previous uri.
  */
-Session::setPreviousUri($_SERVER['REQUEST_URI']);
+Session::setPreviousUri(Request::uri());

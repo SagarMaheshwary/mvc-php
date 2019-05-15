@@ -18,8 +18,10 @@ class Router
      * @var array
      */
     private $routes = [
-        'GET'  => [],
-        'POST' => [],
+        'GET'    => [],
+        'POST'   => [],
+        'PUT'    => [],
+        'DELETE' => [],
     ];
 
     /**
@@ -93,6 +95,30 @@ class Router
     public function post($uri,$controller)
     {
         $this->routes['POST'][$uri] = $controller;
+    }
+
+    /**
+     * Add a route for "PUT" method.
+     * 
+     * @param string $uri
+     * @param string controller
+     * @return void
+     */
+    public function put($uri,$controller)
+    {
+        $this->routes['PUT'][$uri] = $controller;
+    }
+
+    /**
+     * Add a route for "DELETE" method.
+     * 
+     * @param string $uri
+     * @param string controller
+     * @return void
+     */
+    public function delete($uri,$controller)
+    {
+        $this->routes['DELETE'][$uri] = $controller;
     }
 
     /**
@@ -302,6 +328,15 @@ class Router
      */
     protected function setMethod($method)
     {
+        $inputMethod = strtolower(Request::input('_method'));
+        if(strtolower($method) == 'post'){
+            if($inputMethod == 'put'){
+                $method = 'PUT';
+            }else if($inputMethod == 'delete'){
+                $method = 'DELETE';
+            }
+        }
+
         $this->method = $method;
     }
 
