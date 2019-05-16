@@ -156,7 +156,9 @@ class Request
      */
     public static function hasFile($key)
     {
-        return isset($_FILES[$key]);
+        return isset($_FILES[$key]) 
+        ? is_uploaded_file($_FILES[$key]['tmp_name']) 
+        : false ;
     }
 
     /**

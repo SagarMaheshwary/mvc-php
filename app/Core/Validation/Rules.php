@@ -2,6 +2,7 @@
 
 namespace App\Core\Validation;
 
+use Exception;
 use App\Core\Http\Request;
 use App\Core\Support\Session;
 use App\Core\Database\QueryBuilder;
@@ -23,6 +24,23 @@ class Rules
     protected $messageBag;
 
     /**
+     * Valid mime types (images)
+     * 
+     * @var array
+     */
+    protected $mimeTypes = [
+        'png'  => 'image/png',
+        'jpeg' => 'image/jpeg',
+        'jpg'  => 'image/jpeg',
+        'gif'  => 'image/gif',
+        'bmp'  => 'image/bmp',
+        'ico'  => 'image/vnd.microsoft.icon',
+        'tiff' => 'image/tiff',
+        'tif'  => 'image/tiff',
+        'svg'  => 'image/svg+xml',
+    ];
+
+    /**
      * Get the current Request and MessageBag object.
      * 
      * @return void
@@ -41,11 +59,7 @@ class Rules
      */
     public function validateOptional($field)
     {
-        if(!$this->request->has($field)){
-            return true;
-        }
-
-        return false;
+        return !$this->request->has($field) ? true : false;
     }
 
     /**
@@ -56,7 +70,7 @@ class Rules
      */
     public function validateRequired($field)
     {
-        if(!$this->request->has($field)){
+        if(!$this->getRequest()->has($field)){
             $this->error($field,'is required!');
         }
     }
@@ -219,6 +233,63 @@ class Rules
             //the value not unique.
             $this->error($field,"already exists!");
 
+        }
+    }
+
+    /**
+     * Check if the uploaded file is an image.
+     * 
+     * @param string $field
+     * @return void
+     */
+    public function validateImage($field)
+    {
+        $this->checkMime($field,"is not an image!");
+    }
+
+    /**
+     * Check if the uploaded file matches the mime
+     * types.
+     * 
+     * @param string $field
+     * @param string|array $mimes
+     * @return void
+     */
+    public function validateMimeType($field, $mimes)
+    {
+        //make it an array if it's a one value string.
+        $mimes = (array)($mimes);
+
+        $this->checkMime(
+            $field, "should be a valid: ".implode(', ',$mimes).".", $mimes
+        );
+    }
+
+    /**
+     * Check mime type of a given file.
+     * 
+     * @param string $field
+     * @param string $msg
+     * @param array|[] $mimes
+     * @return void
+     */
+    protected function checkMime($field,$msg,$mimes = [])
+    {
+        if(!$this->getRequest()->hasFile($field)) return;
+        
+        $file = $this->getRequest()->file($field);
+
+        if($mimes && 
+        !$mimes = array_intersect_key($this->mimeTypes,array_flip($mimes))) {
+            throw new Exception("Invalid mime in the validation rules!");
+        }
+
+        $validMimes = $mimes ?: array_values($this->mimeTypes);
+
+        $mime = mime_content_type($file['tmp_name']);
+
+        if(!in_array($mime,$validMimes)){
+            $this->error($field,$msg);
         }
     }
 

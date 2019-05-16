@@ -44,6 +44,14 @@ class Validator
         'file', //Field should an uploaded file.
         'alpha_numeric', //Field can have alphabets and digits.
         'numeric', //Field should be a numeric value.
+
+        /**
+         * Should be an image.
+         * Available image types: png,svg,bmp,jpeg,
+         * jpg,gif,tif,tiff,ico.
+         */
+        'image',
+
     ];
 
     /**
@@ -75,17 +83,10 @@ class Validator
         'max',
 
         /**
-         * Should be an image.
-         * Rule syntax: image:type1,type2...
-         * Available types: png,svg,bmp,jpeg.
-         */
-        'image', //@TODO: in next commit
-
-        /**
          * Check the mime type.
          * Rule syntax: mime:type1,type2...
          */
-        'mime', //@TODO: in next commit
+        'mime',
 
     ];
 
@@ -147,7 +148,7 @@ class Validator
             //break the loop.
             if($this->isOptionalField()){
 
-                //we want to set to false so it doesn't
+                //we want to set it to false so it doesn't
                 //break every other field/input.
                 $this->setIsOptionalField(false);
 
@@ -230,6 +231,10 @@ class Validator
             case 'file':
                 $rules->validateFile($field);
             break;
+
+            case 'image':
+                $rules->validateImage($field);
+            break;
         }
     }
 
@@ -261,6 +266,12 @@ class Validator
             case 'unique':
                 $rules->validateUnique(
                     $field,...explode(',',$rule[1])
+                );
+            break;
+
+            case 'mime':
+                $rules->validateMimeTYpe(
+                    $field, explode(',',$rule[1])
                 );
             break;
         }
