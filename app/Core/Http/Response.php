@@ -3,9 +3,9 @@
 namespace App\Core\Http;
 
 use App\Core\Support\Session;
-use App\Core\Http\{BaseController,Request};
+use App\Core\Http\Request;
 
-class Response extends BaseController
+class Response
 {
     /**
      * Current request object.
@@ -13,9 +13,22 @@ class Response extends BaseController
      */
     protected $request;
 
+    /**
+     * Base Controller object.
+     * @var BaseController
+     */
+    protected $controller;
+
+    /**
+     * Magic method called when the instance
+     * is created.
+     * 
+     * @return void
+     */
     public function __construct()
     {
-        $this->request = new Request;
+        $this->setRequest(new Request);
+        $this->setController(new BaseController);
     }
 
     /**
@@ -76,6 +89,19 @@ class Response extends BaseController
     }
 
     /**
+     * Store a session value for the next
+     * request (flash message).
+     * 
+     * @param string $key
+     * @param mixed $value
+     * @return void
+     */
+    public function with($key, $value)
+    {
+        Session::flash($key,$value);
+    }
+
+    /**
      * Force an http error and display an error
      * view.
      * 
@@ -87,25 +113,38 @@ class Response extends BaseController
         switch ($code) {
             case 403:
                 //403 forbidden!
-                $this->statusCode($code);
-                $this->view('errors.403');
+                $this->sendErrorResponse($code,'errors.403');
             break;
             case 404:
-                $this->statusCode($code);
                 //404 not found!
-                $this->view('errors.404');
+                $this->sendErrorResponse($code,'errors.404');
             break;
             case 503:
                 //503 service unavailable!
-                $this->statusCode($code);
-                $this->view('errors.503');
+                $this->sendErrorResponse($code,'errors.503');
             break;
             case 500:
             default:
                 //500 internal server error!
-                $this->statusCode($code);
-                $this->view('errors.500');
+                $this->sendErrorResponse($code,'errors.500');
             break;
+        }
+    }
+
+    /**
+     * Send the error response code if requests json or
+     * else just return the appropriate view.
+     * 
+     * @param int $code
+     * @param string $view
+     * @return void
+     */
+    protected function sendErrorResponse($code, $view)
+    {
+        if($this->getRequest()->isJsonRequest()){
+            $this->statusCode($code);
+        }else{
+            $this->getController()->view($view);
         }
     }
 
@@ -128,6 +167,27 @@ class Response extends BaseController
     public function getRequest()
     {
         return $this->request;
+    }
+
+    /**
+     * Set the controller object.
+     * 
+     * @param BaseController $controller
+     * @return void
+     */
+    public function setController(BaseController $controller)
+    {
+        $this->controller = $controller;
+    }
+
+    /**
+     * Get controller object.
+     * 
+     * @return BaseController
+     */
+    public function getController()
+    {
+        return $this->controller;
     }
 
 }

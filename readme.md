@@ -236,6 +236,9 @@ Just like above, you should specify table() first in every method chain. If you 
 ## Request and Response
 Request class from app/Core/Http directory contains all the methods and properties related to the request. Here are the available methods:
 ```php
+
+    use App\Code\Http\Request;
+
     //methods that you can access statically and from the object instance.
 
     //current request method.
@@ -300,9 +303,57 @@ Request class from app/Core/Http directory contains all the methods and properti
     $request->image;
 ```
 
+Reponse Methods:
+```php
+    use App\Code\Http\Response;
+
+    $response = new Response;
+
+    //set a header
+    $response->header($key,$value,$code,$replace);
+    
+    /**
+     * $code has a default value of 200 and $replace
+     * has default of true.
+     * 
+     * Example:
+     */
+    $response->header('Content Type','application/json',200);
+
+    //just status code.
+    $response->statusCode(500);
+
+    //redirect
+    $response->redirect(url('/posts'));
+
+    //you can also chain with() method for a flash message.
+    $response->redirect(url('/posts'))->with('message',"you've been redirect!");
+
+    /**
+     * you can also pass the status code return a
+     * response error code or display the appropriate
+     * view. Acceptable codes: 403,404,500,503.
+     */
+    $response->redirect(500);
+
+    /**
+     * you can also return json data from a controller.
+     * first argument is an array of data and second is
+     * status code with a default value of 200.
+     */
+    public function controllerMethod(Request $request, Response $response)
+    {
+        return $response->json([
+            'message' => 'hello world!'
+        ],200);
+    }
+```
+
 ## Session and Cookies
 Session class is stored in the app/Core/Support directory. Session methods:
 ```php
+
+    use App\Code\Support\Session;
 
     //get a session value.
     Session::get();
@@ -330,6 +381,8 @@ Session class is stored in the app/Core/Support directory. Session methods:
 ```
 Cookie class is also stored in app/Core/Support directory. Here are the available methods:
 ```php
+
+    use App\Code\Support\Cookie;
 
     //Get a cookie value.
     Cookie::get('cookieName');

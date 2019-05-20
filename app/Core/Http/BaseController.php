@@ -21,7 +21,7 @@ class BaseController
      * @param array|[] $data
      * @return void
      */
-    protected function view($view,$data = [])
+    public function view($view,$data = [])
     {
         if(!$this->exists($view))
             throw new Exception("View not Found");
@@ -37,7 +37,7 @@ class BaseController
      * @param string $view
      * @return void
      */
-    protected function include($view)
+    public function include($view)
     {
         if(!$this->exists($view))
             throw new Exception("Include not found");
