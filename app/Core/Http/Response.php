@@ -76,6 +76,16 @@ class Response
     }
 
     /**
+     * Redirect to the previous url.
+     * 
+     * @return void
+     */
+    public function redirectBack()
+    {
+        $this->redirect($this->getRequest()->previousUrl());
+    }
+
+    /**
      * return json response.
      * 
      * @param mixed|[] $data

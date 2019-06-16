@@ -3,7 +3,6 @@
 /**
  * Global helpers.
  */
-
 use App\Core\Http\Request;
 use App\Core\Security\{Hash,CSRF};
 use App\Core\Validation\MessageBag;

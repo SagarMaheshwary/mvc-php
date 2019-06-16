@@ -89,19 +89,20 @@ class Request
     }
 
     /**
-     * Check for the request method.
+     * Check if the request method matches the
+     * given method.
      *
      * @param string $method
      * @return string
      */
     public static function isMethod($method)
     {
-        $methods = ["GET","POST"];
+        $method = strtoupper($method);
+        $validMethods = ["GET","POST","PUT","DELETE"];
 
-        if(!in_array($method,$methods)){
-            throw new Exception("Invalid Method!");
+        if(!in_array($method,$validMethods)){
+            throw new Exception("Invalid Request Method!");
         }
-        
         return self::method() == $method ? true : false;
     }
 

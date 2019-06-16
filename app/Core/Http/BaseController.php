@@ -3,7 +3,9 @@
 namespace App\Core\Http;
 
 use Exception;
+use App\Core\Security\CSRF;
 use App\Core\Support\Session;
+use App\Core\Http\{Request,Response};
 
 class BaseController
 {
@@ -79,6 +81,44 @@ class BaseController
     {
         Session::flash($key,$value);
         return $this;
+    }
+
+    /**
+     * Check for csrf token.
+     * 
+     * @param string $method
+     * @return false
+     * @throws \Exception
+     */
+    protected function csrf($method = 'post')
+    {
+        $requestMethod = Request::method();
+
+        //first check if we have PUT or DELETE request.
+        if (!Request::has('_method') 
+        || !in_array(strtoupper($method),['PUT','DELETE'])) {
+            if (!Request::isMethod($method)) {
+                //request method doesn't match.
+                return false;
+            }
+        }
+        
+        //check for the csrf token.
+        if (!CSRF::match(Request::input('csrf_token'))) {
+            $this->response()->statusCode(419);
+            throw new Exception("CSRF token not found");
+            exit();
+        }
+    }
+
+    /**
+     * Get the response object.
+     * 
+     * @return \App\Core\Http\Response
+     */
+    protected function response()
+    {
+        return new Response();
     }
 
 }
