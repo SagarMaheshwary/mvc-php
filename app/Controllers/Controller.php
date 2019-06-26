@@ -8,9 +8,8 @@ class Controller extends BaseController
 {
 
     /**
-     * @Todo: this controller with contain
-     * all the necessary code needed in
-     * every controller.
+     * You can add code that needs to be
+     * used in every controller.
      */
     
 }

@@ -554,7 +554,34 @@ Image upload validation example:
 ```
 
 ## Security
-Will be added soon!
+- You can add csrf protection with **csrf()** method that is available in every controller.
+```php
+    //controller constructor.
+    public function __construct()
+    {
+        $this->csrf();
+    }
+```
+Add the csrf token in your form:
+```php
+    <form action="<?= url('/action') ?>">
+        <?= csrfField() ?>
+        //other fields...
+    </form>
+```
+**csrfField()** will generate a hidden input field named. **_token** with csrf token.
+Now whenever you submit this form without csrf token you will get an exception. **csrf()** method by default checks for post request made to all the methods in that controller but you can change that by specifying a different method:
+```php
+    $this->csrf('PUT'); // for PUT request
+    
+    $this->csrf('DELETE'); // for DELETE request
+```
+
+- You should use **e()** helper for escaping output whenever needed:
+```php
+    //inside a view
+    <?php echo e($myVariable) ?>
+```
 
 ## Authentication
 Will be added soon!
