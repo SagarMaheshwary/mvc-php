@@ -329,7 +329,7 @@ Reponse Methods:
     $response->redirect(url('/posts'))->with('message',"you've been redirected!");
 
     /**
-     * you can also pass the status code return a
+     * you can also pass the status code to return a
      * response error code or display the appropriate
      * view. Acceptable codes: 403,404,500,503.
      */
