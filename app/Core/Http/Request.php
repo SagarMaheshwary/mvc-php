@@ -85,6 +85,13 @@ class Request
      */
     public static function method()
     {
+        if (isset($_POST['_method'])) {
+            $method = $_POST['_method'];
+            
+            if ($method == 'PUT') return 'PUT';
+            if ($method == 'DELETE') return 'DELETE';
+        }
+
         return $_SERVER['REQUEST_METHOD'];
     }
 

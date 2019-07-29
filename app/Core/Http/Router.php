@@ -136,14 +136,14 @@ class Router
     }
 
     /**
-     * Direct the router to call a controller
+     * Dispatch the router to call a controller
      * method.
      * 
      * @param string $uri
      * @param string $requestType
      * @return mixed
      */
-    public function direct($uri,$method)
+    public function dispatch($uri,$method)
     {
         $this->setUri($uri);
         $this->setMethod($method);
@@ -328,15 +328,6 @@ class Router
      */
     protected function setMethod($method)
     {
-        $inputMethod = strtolower(Request::input('_method'));
-        if(strtolower($method) == 'post'){
-            if($inputMethod == 'put'){
-                $method = 'PUT';
-            }else if($inputMethod == 'delete'){
-                $method = 'DELETE';
-            }
-        }
-
         $this->method = $method;
     }
 
