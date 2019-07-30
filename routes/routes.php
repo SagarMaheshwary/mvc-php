@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Here you can register both GET and POST routes.
+ * Here you can register all of your application routes.
  * 
  * Syntax GET: $router->get('uri','Controller@method');
- * Syntax POST: $router->post('uri','Controller@method');
  * Dynamic route: $router->method('uri/with/{dynamicvalue}','Controller@method');
+ * Available router methods : get(), post(), put(), delete().
  */
 
 $router->get('/','PagesController@index');

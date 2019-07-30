@@ -86,21 +86,21 @@ class BaseController
     /**
      * Check for csrf token.
      * 
-     * @param string $method
+     * @param array $methods
      * @return false
      * @throws \Exception
      */
-    protected function csrf($method = 'post')
+    protected function csrf($methods = ['POST'])
     {
         $requestMethod = Request::method();
 
-        //first check if we have PUT or DELETE request.
-        if (!Request::has('_method') 
-        || !in_array(strtoupper($method),['PUT','DELETE'])) {
-            if (!Request::isMethod($method)) {
-                //request method doesn't match.
-                return false;
-            }
+        //uppercase all the methods.
+        array_map(function($method) {
+            return strtoupper($method);
+        },$methods);
+
+        if (!in_array($requestMethod,$methods)) {
+            return false;
         }
         
         //check for the csrf token.

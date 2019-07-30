@@ -570,11 +570,11 @@ Add the csrf token in your form:
     </form>
 ```
 **csrfField()** will generate a hidden input field named. **_token** with csrf token.
-Now whenever you submit this form without csrf token you will get an exception. **csrf()** method by default checks for post request made to all the methods in that controller but you can change that by specifying a different method:
+Now whenever you submit this form without csrf token you will get an exception. **csrf()** method by default checks for post request made to all the methods in that controller but you can change that by passing an array of methods or just a single method:
 ```php
-    $this->csrf('PUT'); // for PUT request
+    $this->csrf(['PUT']); // for PUT request
     
-    $this->csrf('DELETE'); // for DELETE request
+    $this->csrf(['PUT','DELETE']); // for PUT, and DELETE request
 ```
 
 - You should use **e()** helper for escaping output whenever needed:
