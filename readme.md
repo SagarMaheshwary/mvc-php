@@ -583,5 +583,4 @@ Now whenever you submit this form without csrf token you will get an exception. 
     <?php echo e($myVariable) ?>
 ```
 
-## Authentication
-Will be added soon!
+**Please note that I wrote this mini-framework just for learning purposes and it's not good enough to be used in a production environment.**
